@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Taiwan Tomato</title>
+<!--
+  ★前日お知らせの「読んだか確認リンク」の行き先（2026-10-28 まるちゃん決定）。
+  ・お客様がリンクを押してこのページが開いたら、お店の窓口へ「押した」の合図を1つ飛ばす。
+    運ぶ道は商品ページと同じ鍵の要らない軽い記録（action=hit）。窓口（グーグル側）は無改修。
+    who=rdok で他の記録と分ける。view＝リンクごとの使い捨て番号（名前・番号は入れない）。
+  ・LINEはリンクを送っただけで中身を読みに行く。読みに行く機械はページの中の仕掛けを動かさないので、
+    合図は「画面が実際に表に出てから」だけ飛ばす（押していないのに押した扱いにしないため）。
+  ・置き場所＝taiwantomato.github.io/（index.html として置く・2026-11-03〜）。手元のこの1枚が正本。
+    前の置き場 tnt-signature.github.io/ok.html にも同じ物を置いてある（前の形の住所も開けるように）。
+-->
+<style>
+/* ★2026-11-03 まるちゃん「台湾トマトの色を基調に。黒だと重い」＝青緑の地に白いカード。暗い表示でも黒にしない */
+:root{--bg:#2C7A99;--card:#fff;--ink:#1f2937;--sub:#4b5563;--teal:#2C7A99;color-scheme:light}
+html,body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","PingFang TC","Noto Sans TC","Noto Sans JP",sans-serif}
+.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px;box-sizing:border-box}
+.card{background:var(--card);border-radius:20px;padding:36px 24px;max-width:420px;width:100%;text-align:center;
+  box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.mark{width:72px;height:72px;border-radius:50%;background:var(--teal);color:#fff;font-size:40px;line-height:72px;margin:0 auto 18px}
+h1{font-size:22px;margin:0 0 12px;line-height:1.5}
+p{font-size:16px;line-height:1.8;color:var(--sub);margin:0}
+.nb{white-space:nowrap}
+/* 土曜・台湾祝日のご予約の方だけに出す「ご来店時間のお願い」（2026-11-03 まるちゃん） */
+.busy{display:none;margin:8px 0 20px;padding:14px 16px;border-radius:14px;background:#e8f3f7;
+  color:var(--ink);font-size:15px;line-height:1.8;text-align:left}
+.busy b{display:block;text-align:center;color:var(--teal);margin-bottom:6px}
+.close{display:inline-block;margin-top:24px;padding:14px 44px;border:0;border-radius:999px;background:var(--teal);
+  color:#fff;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card">
+  <div class="mark">✓</div>
+  <h1 id="t"></h1>
+  <!-- ★2026-11-03 まるちゃん：「ご来店時間のお願い」を上に、その下に「ご来店を心より…閉じていただいて大丈夫です」 -->
+  <div class="busy" id="b"></div>
+  <p id="s"></p>
+  <button class="close" id="c" type="button"></button>
+</div></div>
+<script>
+(function(){
+  var q = location.search;
+  function arg(n){ var m = new RegExp('[?&]' + n + '=([^&]*)').exec(q); return m ? decodeURIComponent(m[1]) : ''; }
+  var k = arg('k'), l = arg('l'), busy = '', today = false;
+  /* ★2026-11-03 短い住所＝taiwantomato.github.io/?番号（日本語）／?番号-zh／?番号-en。前の ?k=&l= の形も読める
+     最後の「.w」＝土曜のご予約・「.h」＝台湾の祝日のご予約（後ろに t が付けば当日＝2回目の送信）。 */
+  var m2 = /^\?([a-z0-9]{6,20})(?:-(ja|zh|en))?(?:\.([wh])(t?))?$/.exec(q);
+  if (!k && m2) { k = m2[1]; l = m2[2] || 'ja'; busy = m2[3] || ''; today = m2[4] === 't'; }
+  k = (k || '').replace(/[^a-z0-9]/g, '').slice(0, 20);
+  var T = {
+    /* ★最後のひとかたまり（nb）は途中で折り返さない＝「す🙇」だけ次の行に落ちないように（2026-11-03） */
+    ja: ['ご確認ありがとうございます', 'ご来店を心よりお待ちしております！<br>このページは閉じていただいて<span class="nb">大丈夫です🙇</span>'],
+    zh: ['感謝您的確認', '期待您的光臨！<br>此頁面可以<span class="nb">直接關閉🙇</span>'],
+    en: ['Thank you for confirming', 'We look forward to seeing you!<br>You may close this <span class="nb">page now🙇</span>']
+  };
+  var w = T[l] || T.ja;
+  document.documentElement.lang = (l === 'zh') ? 'zh-Hant' : (l === 'en' ? 'en' : 'ja');
+  document.getElementById('t').innerHTML = w[0];
+  document.getElementById('s').innerHTML = w[1];
+  document.getElementById('c').textContent = ({ja:'閉じる', zh:'關閉', en:'Close'})[l] || '閉じる';
+
+  /* ★土曜・台湾祝日のご予約の方だけ「ご来店時間のお願い」を出す（2026-11-03 まるちゃんの文） */
+  if (busy) {
+    var hol = busy === 'h', B = {
+      ja: ['❋ご来店時間のお願い❋', (today ? '本日' : '明日') + 'は' + (hol ? '祝日' : '週末')
+           + 'で予約が混み合っております。遅れますと後のお客様に影響し、施術をお受けいただけない場合がございます'
+           + '（その場合当日キャンセルの規定が適用されてしまいます）ので、お時間どおりの来店に何卒ご協力をお願いします🙇‍♀️'],
+      zh: ['❋到店時間提醒❋', (today ? '今天' : '明天') + '為' + (hol ? '國定假日' : '週末')
+           + '，預約較為滿檔。若遲到將影響到後面的客人，可能無法為您服務（屆時將不得不適用當天取消的規定），'
+           + '敬請務必準時到店，感謝您的配合🙇‍♀️'],
+      en: ['❋ Please arrive on time ❋', (today ? 'Today' : 'Tomorrow') + ' is a ' + (hol ? 'holiday' : 'weekend')
+           + ', so we are fully booked. If you are late, it may affect the next customer and we may not be able to '
+           + 'provide your treatment (in which case, unfortunately, our same-day cancellation policy will apply), so please be sure '
+           + 'to arrive on time🙇‍♀️']
+    }[l] || null;
+    if (B) {
+      var el = document.getElementById('b');
+      el.innerHTML = '<b>' + B[0] + '</b>' + B[1];
+      el.style.display = 'block';
+    }
+  }
+
+  var PIPE = "https://script.google.com/macros/s/"
+    + "AKfycbzSxho3e4CHyAuoymGlzcVwGnLshGoCg53zY18laLrHMq5Cun_pBv8XgRsNxKMDxlKwUA/exec";
+  /* ★2026-11-06 まるちゃん「クリックしたら必ずキャッチ。客に失礼になるから絶対にもらしたくない」。
+     前は開いて0.4秒後に1回だけ送り、返事も見なかった（しくじっても送り直さない）。今は：
+     ①表に出たらすぐ送り、窓口の「受け取った（保存した）」の返事をもらうまで間を空けて送り直す。
+     ②返事をもらう前にページが隠れる・閉じる時は、閉じても届く送り方（sendBeacon）でもう1回送る。
+     ③届いたと分かるまで、このスマホに番号を覚えておき、次にどの確認リンクを開いた時でも送り直す（3日まで）。
+     何回届いても、仕組みは一番早い時刻だけを見る＝二重に数えない。
+     ★読みに来ただけの機械（LINEのリンクの下見）は仕掛けを動かさず、裏で先読みされた時は表に出ていない＝送らない。 */
+  var LIVE = /^https?:$/.test(location.protocol);                /* 手元のファイルで開いた試しは送らない */
+  var PEND = 'rdok_pending', DAY3 = 3 * 24 * 3600 * 1000;
+  var done = false, seen = false, busy = false, tries = 0, waiters = [];
+  var WAIT = [1000, 2000, 3000, 5000, 8000, 13000, 20000];
+  function hitUrl(tok, lang){
+    return PIPE + '?action=hit&who=rdok&device=page&role=' + encodeURIComponent((lang || 'ja').slice(0, 5))
+         + '&view=' + encodeURIComponent(tok);
+  }
+  function pendGet(){ try{ return JSON.parse(localStorage.getItem(PEND) || '{}') || {}; }catch(e){ return {}; } }
+  function pendSet(m){ try{ localStorage.setItem(PEND, JSON.stringify(m)); }catch(e){} }
+  function remember(tok, lang){ var m = pendGet(); if (!m[tok]) { m[tok] = { l: lang || 'ja', t: Date.now() }; pendSet(m); } }
+  function forget(tok){ var m = pendGet(); if (m[tok]) { delete m[tok]; pendSet(m); } }
+  /* 返事付きで送る（窓口が保存できた時だけ ok:true が返る）。8秒で返事が無ければ失敗扱い。 */
+  function send(tok, lang, cb){
+    var name = '__rdok' + Math.random().toString(36).slice(2), s = document.createElement('script'), fin = false;
+    function end(ok){ if (fin) return; fin = true; clearTimeout(t); window[name] = function(){};
+                      if (s.parentNode) s.parentNode.removeChild(s); cb(ok); }
+    var t = setTimeout(function(){ end(false); }, 8000);
+    window[name] = function(r){ end(!!(r && r.ok)); };
+    s.onerror = function(){ end(false); };
+    s.src = hitUrl(tok, lang) + '&callback=' + name + '&_=' + Date.now();
+    (document.head || document.documentElement).appendChild(s);
+  }
+  function got(){ done = true; forget(k); var w = waiters; waiters = []; w.forEach(function(f){ f(); }); }
+  function ping(){
+    if (!LIVE || !k || done || busy) return;
+    if (document.visibilityState && document.visibilityState !== 'visible') return;   /* 裏で先読みされた時は送らない */
+    seen = true; busy = true; remember(k, l);
+    send(k, l, function(ok){
+      busy = false;
+      if (ok) { got(); return; }
+      setTimeout(ping, WAIT[Math.min(tries++, WAIT.length - 1)]);
+    });
+  }
+  function beacon(){
+    if (!LIVE || !k || done || !seen) return;
+    try{ if (navigator.sendBeacon) navigator.sendBeacon(hitUrl(k, l)); }catch(e){}
+  }
+  /* 前に開いた確認リンクで、届いたと分からないままの分を送り直す（このページの番号は ping が送る） */
+  function resendOld(){
+    if (!LIVE) return;
+    var m = pendGet(), now = Date.now();
+    Object.keys(m).forEach(function(tok){
+      if (tok === k) return;
+      if (!m[tok] || now - (m[tok].t || 0) > DAY3) { forget(tok); return; }
+      send(tok, m[tok].l, function(ok){ if (ok) forget(tok); });
+    });
+  }
+  ping();
+  resendOld();
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'hidden') beacon(); else ping();
+  });
+  window.addEventListener('pagehide', beacon);
+
+  /* ★閉じるボタン（2026-11-03 まるちゃん「閉じるボタンないとうざい」）。
+     LINEの中のブラウザは、ページから自分を閉じられないことが多い。閉じられなかった時は、お店とのトーク
+     （公式LINE @hci2793z・文なし）を開き直す＝LINEの画面に戻る（商品ページで2026-09-18にまるちゃんのスマホで効いた形）。
+     ★2026-11-06：まだ「受け取った」の返事が無い時は、返事を最大2.5秒待ってから閉じる（閉じる前に閉じても届く送り方でも送る）。 */
+  document.getElementById('c').addEventListener('click', function(){
+    var gone = false;
+    function close(){
+      if (gone) return; gone = true;
+      try{ window.close(); }catch(e){}
+      setTimeout(function(){ location.href = 'https://line.me/R/oaMessage/@hci2793z/'; }, 300);
+    }
+    if (done || !LIVE || !k) { close(); return; }
+    waiters.push(close);
+    ping();
+    beacon();
+    setTimeout(close, 2500);
+  });
+})();
+</script>
+</body>
+</html>
